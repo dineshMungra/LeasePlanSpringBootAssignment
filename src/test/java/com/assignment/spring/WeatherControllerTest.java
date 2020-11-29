@@ -61,4 +61,14 @@ public class WeatherControllerTest {
 
         this.mockMvc.perform(get("/weather?city=London,uk")).andDo(print()).andExpect(status().isInternalServerError());
     }
+
+    @Test
+    public void testCityParameterMIssingReturnsErrorResponse() throws Exception {
+        this.mockMvc.perform(get("/weather")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCityParameterValueMIssingReturnsErrorResponse() throws Exception {
+        this.mockMvc.perform(get("/weather?city=")).andExpect(status().isBadRequest());
+    }
 }
