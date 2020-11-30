@@ -1,5 +1,6 @@
 package com.assignment.spring;
 
+import com.assignment.spring.controller.WeatherController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class SmokeTest {
     private WeatherController weatherController;
 
     @Test
-    public void contextLoads() throws Exception {
+    public void contextLoads() {
         assertThat(weatherController).isNotNull();
     }
 }

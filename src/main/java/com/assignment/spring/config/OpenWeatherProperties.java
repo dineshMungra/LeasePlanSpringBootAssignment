@@ -1,4 +1,4 @@
-package com.assignment.spring;
+package com.assignment.spring.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -9,11 +9,6 @@ public class OpenWeatherProperties {
 
     private String endpointUrl;
     private String apiKey;
-
-    /*public OpenWeatherProperties(String endpointUrl, String apiKey) {
-        this.endpointUrl = endpointUrl;
-        this.apiKey = apiKey;
-    }*/
 
     public String getEndpointUrl() {
         return endpointUrl;

@@ -9,8 +9,6 @@ spring:
 openweather:
   endpointurl: http://api.openweathermap.org/data/2.5/weather?q={city}&APPID={appid}
   apikey: 6a27b7caf826da2b17ac4a2dc9e939f4
-foo:
-  bar=lorem-ipsum
 
 
 

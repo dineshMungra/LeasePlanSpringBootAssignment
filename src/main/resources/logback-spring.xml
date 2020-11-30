@@ -32,16 +32,16 @@
         </rollingPolicy>
     </appender>
 
-    <!-- LOG everything at WARN level -->
-    <root level="warn">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="Console"/>
     </root>
 
     <!-- LOG "com.assignment.spring*" at INFO level -->
     <logger name="com.assignment.spring" level="info" additivity="false">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
+        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="Console"/>
     </logger>
 
 </configuration>

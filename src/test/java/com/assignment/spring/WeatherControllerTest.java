@@ -1,17 +1,12 @@
 package com.assignment.spring;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.assignment.spring.api.Main;
 import com.assignment.spring.api.Sys;
 import com.assignment.spring.api.WeatherResponse;
+import com.assignment.spring.config.OpenWeatherProperties;
+import com.assignment.spring.controller.WeatherController;
+import com.assignment.spring.model.WeatherEntity;
+import com.assignment.spring.repository.WeatherRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +21,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(WeatherController.class)
@@ -45,10 +48,20 @@ public class WeatherControllerTest {
     private OpenWeatherProperties openWeatherProperties;
 
     @Test
-    public void testWeatherHappyFlow() throws Exception {
-
+    public void testOpenWeatherResponseJSONEmptyResultsInErrorResponse() throws Exception {
         setupOpenWeatherPropertiesMock();
+        WeatherResponse weatherResponse = null;
 
+        ResponseEntity<WeatherResponse> responseEntity = new ResponseEntity<>(weatherResponse, HttpStatus.OK);
+        when(restTemplate.getForEntity(anyString(), eq(WeatherResponse.class))).thenReturn(responseEntity);
+
+        this.mockMvc.perform(get("/weather?city=London,uk")).andDo(print())
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testWeatherHappyFlow() throws Exception {
+        setupOpenWeatherPropertiesMock();
         WeatherResponse weatherResponse = createWeatherResponseToBeReturnedByOpenWeatherServiceMock();
 
         /*
@@ -59,16 +72,18 @@ public class WeatherControllerTest {
         WeatherEntity weatherEntity = createWeatherEntityToBeReturnedByWeatherRepositoryMock();
 
         // Set up responseEntity and make restTemplate return it
-        ResponseEntity<WeatherResponse> responseEntity = new ResponseEntity(weatherResponse, HttpStatus.OK);
+        //@SuppressWarnings({"unchecked", "raw"})
+        ResponseEntity<WeatherResponse> responseEntity = new ResponseEntity<>(weatherResponse, HttpStatus.OK);
         when(restTemplate.getForEntity(anyString(), eq(WeatherResponse.class))).thenReturn(responseEntity);
 
         // set up weather repository to return the created weatherEntity
         when(weatherRepository.save(any(WeatherEntity.class))).thenReturn(weatherEntity);
 
+        // call controller REST method and verify json result
         this.mockMvc.perform(get("/weather?city=London,uk")).andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.city", is(notNullValue())))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.city", is("Almere Stad")))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.city", is(notNullValue())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.city", is("Almere Stad")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.country", is(notNullValue())))
             .andExpect(MockMvcResultMatchers.jsonPath("$.country", is("NL")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.temperature", is(notNullValue())))
@@ -118,7 +133,7 @@ public class WeatherControllerTest {
     }
 
     @Test
-    public void testWeatherReturnsErrorResponse() throws Exception {
+    public void testRestClientExceptionIsConvertedToErrorResponse() throws Exception {
         setupOpenWeatherPropertiesMock();
         RestClientException restClientException = mock(RestClientException.class);
         when(restTemplate.getForEntity(anyString(), eq(WeatherResponse.class))).thenThrow(restClientException);
